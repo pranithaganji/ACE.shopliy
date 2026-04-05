@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AERIS | Antigravity Supply</title>
+<style>
+/* Reset and Base Styles */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-dark: #020617;
+  --bg-panel: rgba(15, 23, 42, 0.7);
+  --primary: #8b5cf6;
+  --primary-glow: rgba(139, 92, 246, 0.6);
+  --secondary: #3b82f6;
+  --secondary-glow: rgba(59, 130, 246, 0.6);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #0ea5e9;
+}
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Deep Space Background Effects */
+body::before {
+  content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: 
+    radial-gradient(circle at 20% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 60% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 30%);
+  z-index: -2; pointer-events: none;
+}
+
+/* Subtle starry background texture */
+body::after {
+  content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background-image: radial-gradient(#fff 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: 0 0;
+  opacity: 0.03;
+  z-index: -1; pointer-events: none;
+}
+
+/* Typography & Utils */
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
+.text-gradient {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+
+/* Sticky Header */
+header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.logo { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
+.logo span { color: var(--primary); }
+.cart-toggle {
+  background: transparent; color: var(--text-main);
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 1rem; padding: 0.5rem 1rem;
+  border-radius: 999px; transition: background 0.3s;
+}
+.cart-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+.cart-badge {
+  background: var(--primary); color: white;
+  font-size: 0.75rem; font-weight: bold;
+  height: 20px; min-width: 20px;
+  border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; padding: 0 6px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Container */
+main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+/* Filter Bar */
+.filter-bar {
+  display: flex; gap: 1rem; margin-bottom: 3rem; overflow-x: auto;
+  padding-bottom: 0.5rem; justify-content: center;
+}
+.filter-btn {
+  background: var(--bg-panel); color: var(--text-main);
+  border: 1px solid var(--border); padding: 0.75rem 1.5rem;
+  border-radius: 999px; font-size: 0.9rem; font-weight: 500;
+  transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.filter-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+.filter-btn.active {
+  background: var(--primary); border-color: var(--primary);
+  box-shadow: 0 0 15px var(--primary-glow); transform: translateY(0);
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* Product Card */
+.product-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border); border-radius: 1rem;
+  padding: 1.5rem; display: flex; flex-direction: column;
+  backdrop-filter: blur(10px);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+  position: relative; overflow: hidden;
+}
+.product-card::before {
+  content: ""; position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1), transparent 60%);
+  opacity: 0; transition: opacity 0.4s; pointer-events: none;
+}
+.product-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+.product-card:hover::before { opacity: 1; }
+
+.img-container {
+  height: 220px; display: flex; justify-content: center; align-items: center;
+  margin-bottom: 1.5rem;
+}
+.product-image {
+  max-height: 100%; max-width: 100%; object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+.product-category {
+  font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 0.5rem;
+}
+.product-name { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+.product-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto;
+}
+.product-price { font-size: 1.5rem; font-weight: 700; color: var(--secondary); }
+.product-price::before { content: "₿"; font-size: 1rem; margin-right: 0.2rem; }
+
+.add-to-cart {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  color: white; padding: 0.7rem 1.2rem; border-radius: 0.5rem;
+  font-weight: 600; transition: opacity 0.3s, transform 0.2s;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+.add-to-cart:hover { opacity: 0.9; transform: scale(1.05); }
+.add-to-cart:active { transform: scale(0.95); }
+
+/* Cart Drawer */
+.cart-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+  z-index: 90; opacity: 0; visibility: hidden; transition: all 0.4s ease;
+}
+.cart-overlay.open { opacity: 1; visibility: visible; }
+.cart-drawer {
+  position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100%;
+  background: rgba(10, 15, 30, 0.95); backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border); z-index: 100;
+  transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+  display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+.cart-drawer.open { right: 0; }
+
+.cart-header {
+  padding: 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cart-header h2 { font-size: 1.5rem; }
+.close-cart {
+  background: transparent; color: var(--text-muted); font-size: 1.5rem;
+  transition: color 0.3s;
+}
+.close-cart:hover { color: var(--text-main); transform: scale(1.1); }
+
+.cart-items {
+  flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;
+}
+.cart-item {
+  display: flex; align-items: center; gap: 1rem; background: rgba(255, 255, 255, 0.05);
+  padding: 1rem; border-radius: 0.75rem; border: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+.cart-item:hover { border-color: rgba(255, 255, 255, 0.1); }
+.cart-item-img {
+  width: 60px; height: 60px; object-fit: contain;
+  background: rgba(0, 0, 0, 0.3); border-radius: 0.5rem; padding: 0.25rem;
+}
+.cart-item-info { flex: 1; }
+.cart-item-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+.cart-item-price { font-size: 0.8rem; color: var(--secondary); }
+.cart-item-price::before { content: "₿"; }
+.cart-item-remove {
+  background: transparent; color: #ef4444; font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.05em; margin-top: 0.25rem; display: inline-block; cursor: pointer; border:none;
+}
+.cart-item-remove:hover { text-decoration: underline; }
+
+.cart-footer { padding: 1.5rem; border-top: 1px solid var(--border); background: rgba(0, 0, 0, 0.2); }
+.cart-total { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700; }
+.cart-total-value { color: var(--primary); }
+.cart-total-value::before { content: "₿"; }
+.checkout-btn {
+  width: 100%; padding: 1rem; background: var(--text-main); color: var(--bg-dark);
+  font-size: 1.1rem; font-weight: 800; border-radius: 0.5rem; text-transform: uppercase;
+  letter-spacing: 0.1em; transition: background 0.3s, transform 0.2s;
+}
+.checkout-btn:hover { background: var(--secondary); color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+.checkout-btn:active { transform: translateY(0); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .cart-drawer { width: 100%; right: -100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AERIS<span class="text-gradient">.SPACE</span></div>
+  <button class="cart-toggle" onclick="toggleCart()">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    </svg>
+    Cart <span class="cart-badge" id="cartCount">0</span>
+  </button>
+</header>
+
+<main>
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="All">All Tech</button>
+    <button class="filter-btn" data-filter="Suits">Suits</button>
+    <button class="filter-btn" data-filter="Gear">Gear</button>
+    <button class="filter-btn" data-filter="Tech">Tech</button>
+    <button class="filter-btn" data-filter="Boosters">Boosters</button>
+  </div>
+
+  <div class="product-grid" id="productGrid">
+    <!-- Products rendered via JS -->
+  </div>
+</main>
+
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h2>Cargo Bay</h2>
+    <button class="close-cart" onclick="toggleCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <!-- Cart items rendered via JS -->
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total Orbit Value:</span>
+      <span class="cart-total-value" id="cartTotal">0</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Initiate Launch</button>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id: 1, name: "Ion Jetpack X-1", price: 4999, category: "Boosters", image: "assets/jetpack.png" },
+  { id: 2, name: "Zero-G Hover Boots", price: 1250, category: "Gear", image: "assets/hover_boots.png" },
+  { id: 3, name: "Quantum Gravity Belt", price: 2100, category: "Gear", image: "assets/gravity_belt.png" },
+  { id: 4, name: "Aegis EXO Suit", price: 8500, category: "Suits", image: "assets/space_suit.png" },
+  { id: 5, name: "Plasma Cutter Pro", price: 890, category: "Tech", image: "assets/plasma_cutter.png" },
+  { id: 6, name: "O2 Synth Tank", price: 1100, category: "Gear", image: "assets/oxygen_tank.png" },
+  { id: 7, name: "Orbital Thruster Module", price: 3400, category: "Boosters", image: "assets/thruster_module.png" },
+  { id: 8, name: "Nexus Neuro-Visor", price: 1600, category: "Tech", image: "assets/navigation_visor.png" }
+];
+
+let cart = [];
+
+const grid = document.getElementById('productGrid');
+const cartItemsContainer = document.getElementById('cartItems');
+const cartCount = document.getElementById('cartCount');
+const cartTotal = document.getElementById('cartTotal');
+const filterBtns = document.querySelectorAll('.filter-btn');
+
+function init() {
+  renderProducts('All');
+  setupFilters();
+  updateCartUI();
+}
+
+function renderProducts(filter) {
+  grid.innerHTML = '';
+  const filteredProducts = filter === 'All' ? products : products.filter(p => p.category === filter);
+  
+  filteredProducts.forEach((p, index) => {
+    // Generate a unique animation delay for staggered floating
+    const delay = (index * 0.4) + 's';
+    
+    grid.innerHTML += `
+      <div class="product-card">
+        <div class="img-container">
+          <img src="${p.image}" alt="${p.name}" class="product-image" style="animation-delay: ${delay};">
+        </div>
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-footer">
+          <div class="product-price">${p.price.toLocaleString()}</div>
+          <button class="add-to-cart" onclick="addToCart(${p.id})">Aquire</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function setupFilters() {
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      renderProducts(e.target.dataset.filter);
+    });
+  });
+}
+
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  cart.push(product);
+  updateCartUI();
+  // Simple micro-interaction for the badge
+  cartCount.style.transform = 'scale(1.5)';
+  setTimeout(() => { cartCount.style.transform = 'scale(1)'; }, 200);
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  cartCount.textContent = cart.length;
+  cartItemsContainer.innerHTML = '';
+  
+  if (cart.length === 0) {
+    cartItemsContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; margin-top: 2rem;">Your cargo bay is empty.</p>';
+  } else {
+    cart.forEach((item, index) => {
+      cartItemsContainer.innerHTML += `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+          <div class="cart-item-info">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-price">${item.price.toLocaleString()}</div>
+            <button class="cart-item-remove" onclick="removeFromCart(${index})">Jettison</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  cartTotal.textContent = total.toLocaleString();
+}
+
+function toggleCart() {
+  document.getElementById('cartDrawer').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('open');
+}
+
+function checkout() {
+  if(cart.length === 0) {
+    alert("Load cargo before initiating launch.");
+    return;
+  }
+  alert("Launch Sequence Initiated with " + cart.length + " items!");
+  cart = [];
+  updateCartUI();
+  toggleCart();
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
